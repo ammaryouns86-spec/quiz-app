@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOX - Quiz Application</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f4c75 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .nox-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-size: 14px;
+            letter-spacing: 2px;
+        }
+
+        h1 {
+            font-size: 48px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #cbd5e1;
+            margin-bottom: 30px;
+        }
+
+        .quiz-container {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.1);
+        }
+
+        .question-counter {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .counter-text {
+            font-size: 16px;
+            color: #cbd5e1;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff 0%, #0099ff 100%);
+            transition: width 0.3s ease;
+        }
+
+        .question-text {
+            font-size: 20px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            color: #f1f5f9;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            background: rgba(0, 212, 255, 0.05);
+            border: 2px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            color: #f1f5f9;
+        }
+
+        .option:hover {
+            background: rgba(0, 212, 255, 0.15);
+            border-color: rgba(0, 212, 255, 0.5);
+            transform: translateX(-5px);
+        }
+
+        .option.selected {
+            background: rgba(0, 212, 255, 0.3);
+            border-color: #00d4ff;
+        }
+
+        .option.correct {
+            background: rgba(34, 197, 94, 0.3);
+            border-color: #22c55e;
+        }
+
+        .option.incorrect {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: #ef4444;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 16px;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+            border-left: 4px solid #22c55e;
+        }
+
+        .feedback.incorrect {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border-left: 4px solid #ef4444;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+            color: #000;
+        }
+
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .btn-next:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-prev {
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            border: 2px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-prev:hover {
+            background: rgba(0, 212, 255, 0.2);
+        }
+
+        .results {
+            text-align: center;
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d4ff 0%, #0099ff 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            font-size: 60px;
+            font-weight: bold;
+            color: #000;
+            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.3);
+        }
+
+        .results h2 {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .results p {
+            font-size: 18px;
+            color: #cbd5e1;
+            margin-bottom: 30px;
+        }
+
+        .btn-restart {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #000;
+            padding: 15px 40px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-restart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(251, 191, 36, 0.4);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 32px;
+            }
+
+            .quiz-container {
+                padding: 20px;
+            }
+
+            .question-text {
+                font-size: 18px;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="nox-badge">[NOX]</div>
+            <h1>Quiz Application</h1>
+            <p class="subtitle">English Language - 230 Questions</p>
+        </div>
+
+        <div class="quiz-container">
+            <div class="question-counter">
+                <span class="counter-text">Question <span id="currentQuestion">1</span> of <span id="totalQuestions">230</span></span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div id="quizContent">
+                <div class="question-text" id="questionText"></div>
+                <div class="options" id="optionsContainer"></div>
+                <div class="feedback" id="feedback"></div>
+                <div class="buttons">
+                    <button class="btn-prev" id="prevBtn" onclick="previousQuestion()">Previous</button>
+                    <button class="btn-next" id="nextBtn" onclick="nextQuestion()" disabled>Next</button>
+                </div>
+            </div>
+
+            <div class="results" id="results">
+                <div class="score-circle" id="scoreCircle"></div>
+                <h2>Quiz Complete!</h2>
+                <p id="resultText"></p>
+                <button class="btn-restart" onclick="restartQuiz()">Restart Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Questions Data
+        const questions = [
+            {"question": "What is the plural of 'child'?", "options": ["childs", "children", "childes", "child's"], "correct": "children"},
+            {"question": "Which word means 'very happy'?", "options": ["sad", "delighted", "angry", "tired"], "correct": "delighted"},
+            {"question": "What is the opposite of 'hot'?", "options": ["warm", "cold", "cool", "freezing"], "correct": "cold"},
+            {"question": "Choose the correct spelling:", "options": ["recieve", "receive", "recive", "recieve"], "correct": "receive"},
+            {"question": "What does 'abundant' mean?", "options": ["rare", "plentiful", "scarce", "limited"], "correct": "plentiful"},
+            {"question": "Which is a noun?", "options": ["run", "quickly", "beautiful", "table"], "correct": "table"},
+            {"question": "What is the past tense of 'go'?", "options": ["goed", "went", "goes", "going"], "correct": "went"},
+            {"question": "Choose the correct sentence:", "options": ["He don't like apples", "He doesn't like apples", "He not like apples", "He no like apples"], "correct": "He doesn't like apples"},
+            {"question": "What does 'persevere' mean?", "options": ["give up", "continue trying", "stop", "rest"], "correct": "continue trying"},
+            {"question": "Which word is an adjective?", "options": ["run", "beautiful", "quickly", "jump"], "correct": "beautiful"}
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = {};
+        let selectedAnswers = {};
+
+        function loadQuestion() {
+            const question = questions[currentQuestionIndex];
+            document.getElementById('questionText').textContent = question.question;
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('totalQuestions').textContent = questions.length;
+
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.textContent = option;
+
+                if (selectedAnswers[currentQuestionIndex] === option) {
+                    optionDiv.classList.add('selected');
+                }
+
+                optionDiv.onclick = () => selectOption(option, optionDiv);
+                optionsContainer.appendChild(optionDiv);
+            });
+
+            // Update progress bar
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            // Update button states
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            document.getElementById('nextBtn').disabled = !selectedAnswers[currentQuestionIndex];
+
+            // Hide feedback
+            document.getElementById('feedback').classList.remove('show');
+        }
+
+        function selectOption(option, element) {
+            const question = questions[currentQuestionIndex];
+            selectedAnswers[currentQuestionIndex] = option;
+
+            // Remove previous selection
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected', 'correct', 'incorrect');
+            });
+
+            if (option === question.correct) {
+                element.classList.add('correct');
+                if (!answered[currentQuestionIndex]) {
+                    score++;
+                    answered[currentQuestionIndex] = true;
+                }
+                showFeedback('Correct! ✓', 'correct');
+            } else {
+                element.classList.add('incorrect');
+                showFeedback(`Incorrect! The correct answer is: ${question.correct}`, 'incorrect');
+            }
+
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function showFeedback(message, type) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = message;
+            feedback.className = `feedback show ${type}`;
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quizContent').style.display = 'none';
+            document.getElementById('results').classList.add('show');
+
+            const percentage = Math.round((score / questions.length) * 100);
+            document.getElementById('scoreCircle').textContent = percentage + '%';
+            document.getElementById('resultText').textContent = `You got ${score} out of ${questions.length} questions correct!`;
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            answered = {};
+            selectedAnswers = {};
+            document.getElementById('quizContent').style.display = 'block';
+            document.getElementById('results').classList.remove('show');
+            loadQuestion();
+        }
+
+        // Initialize
+        loadQuestion();
+    </script>
+</body>
+</html>
